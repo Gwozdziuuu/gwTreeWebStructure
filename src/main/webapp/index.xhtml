@@ -1,0 +1,103 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<script name="jquery/jquery.js" library="primefaces"></script>
+	<title>Struktura drzewiasta</title>
+</h:head>
+<h:form id="treeForm">
+	<p:growl id="messages" />
+
+	<p:tree value="#{treeAction.rootNode}" var="node" id="tree"
+		selectionMode="single" selection="#{treeAction.selectedNode}">
+		<p:ajax event="select" update=":treeForm:messages"
+			listener="#{treeAction.onNodeSelect}" />
+		<p:treeNode>
+			<h:outputText value="#{node.nodeData}" />
+		</p:treeNode>
+		<p:treeNode type="#{node.nodeType}" icon="customProjectNode">
+			<h:outputText value="#{node.nodeData}" />
+		</p:treeNode>
+	</p:tree>
+</h:form>
+
+<h:form id="addForm">
+<p:growl id="messages" />
+	<p:outputLabel value="Dodaj nowy węzeł: " />
+	<p:panelGrid columns="4">
+		<p:inputText value="#{treeAction.tree.nodeData}" placeholder="Nazwa"
+			required="true" requiredMessage="Pole nazwa nie może być puste" />
+		<p:selectOneMenu id="parentTree" value="#{treeAction.tree.parentId}"
+			required="true" requiredMessage="Należy wybrać węzeł">
+			<f:selectItem itemLabel="Wybierz" itemValue="" />
+			<f:selectItems value="#{treeAction.treeList}" var="tree"
+				itemLabel="#{tree.nodeData}" itemValue="#{tree.id}" />
+		</p:selectOneMenu>
+		<p:inputText value="#{treeAction.tree.nodeValue}"
+			placeholder="Wartość" />
+		<p:commandButton value="Dodaj" action="#{treeAction.addTree}"
+			update=":treeForm, addForm, :deleteForm, :moveForm, :editForm, messages" />
+	</p:panelGrid>
+</h:form>
+
+<h:form id="deleteForm">
+<p:growl id="messages" />
+	<p:outputLabel value="Usuń węzeł: " />
+	<p:panelGrid columns="2">
+		<p:selectOneMenu id="deleteTree" value="#{treeAction.tree.id}">
+			<f:selectItem itemLabel="Wybierz" itemValue="" />
+			<f:selectItems value="#{treeAction.treeList}" var="tree"
+				itemLabel="#{tree.nodeData}" itemValue="#{tree.id}" />
+			<p:ajax update="deleteForm" />
+		</p:selectOneMenu>
+		<p:commandButton value="Usuń" action="#{treeAction.deleteTree}"
+			update=":treeForm, messages" />
+	</p:panelGrid>
+</h:form>
+
+<h:form id="moveForm">
+<p:growl id="messages" />
+	<p:outputLabel value="Przenieś węzeł: " />
+	<p:panelGrid columns="3">
+		<p:selectOneMenu id="moveTree" value="#{treeAction.tree.id}"
+		required="true" requiredMessage="Należy wybrać przenoszony węzeł">
+			<f:selectItem itemLabel="Wybierz" itemValue="" />
+			<f:selectItems value="#{treeAction.treeList}" var="tree"
+				itemLabel="#{tree.nodeData}" itemValue="#{tree.id}" />
+			<p:ajax update="moveForm" />
+		</p:selectOneMenu>
+
+		<p:selectOneMenu id="moveTreeAim" value="#{treeAction.treeAim.id}"
+		required="true" requiredMessage="Należy wybrać docelowy węzeł">
+			<f:selectItem itemLabel="Docelowy węzeł" itemValue="" />
+			<f:selectItems value="#{treeAction.treeList}" var="treeAim"
+				itemLabel="#{treeAim.nodeData}" itemValue="#{treeAim.id}" />
+			<p:ajax update="moveForm" />
+		</p:selectOneMenu>
+		<p:commandButton value="Przenieś" action="#{treeAction.moveTree}"
+			update=":treeForm, messages" />
+	</p:panelGrid>
+</h:form>
+
+<h:form id="editForm">
+<p:growl id="messages" />
+	<p:outputLabel value="Edytuj węzeł: " />
+	<p:panelGrid columns="4">
+		<p:selectOneMenu id="editTree" value="#{treeAction.tree.id}"
+		required="true" requiredMessage="Należy wybrać węzeł">
+			<f:selectItem itemLabel="Wybierz" itemValue="" />
+			<f:selectItems value="#{treeAction.treeList}" var="tree"
+				itemLabel="#{tree.nodeData}" itemValue="#{tree.id}" />
+			<p:ajax update="editForm" listener="#{treeAction.refreshTreeForUpdate}"/>
+		</p:selectOneMenu>
+		<p:inputText id="editData" value="#{treeAction.tree.nodeData}"
+			placeholder="Nazwa" />
+		<p:inputText id="editValue" value="#{treeAction.tree.nodeValue}"
+			placeholder="Wartość" />
+		<p:commandButton value="Edytuj" action="#{treeAction.updateTree}"
+			update=":treeForm, messages" />
+	</p:panelGrid>
+</h:form>
+</html>
